@@ -1,7 +1,7 @@
 services:
   simulation:
     image: "ghcr.io/open-rmf/rmf_deployment_template/rmf-deployment/rmf-sim:latest"
-    entrypoint: ["/ros_entrypoint.sh", "ros2", "launch", "rmf_demos_gz", "office.launch.xml", "headless:=1", "server_uri:=ws://localhost:8000/_internal"]
+    entrypoint: ["/ros_entrypoint.sh", "ros2", "launch", "rmf_demos_gz", "office.launch.xml", "headless:=1", "server_uri:=ws://10.100.0.16:8000/_internal"]
     environment:
       RMW_IMPLEMENTATION: "rmw_cyclonedds_cpp"
     network_mode: "host"
@@ -10,12 +10,22 @@ services:
     image: "ghcr.io/open-rmf/rmf_deployment_template/rmf-deployment/api-server:latest"
     environment:
       RMW_IMPLEMENTATION: "rmw_cyclonedds_cpp"
+      RMF_API_SERVER_CONFIG: "smr_config.py"
+      REACT_APP_TRAJECTORY_SERVER: "ws://10.100.0.16:8006"
     network_mode: "host"
+    extra_hosts:
+      - "rmf.test:127.0.0.1"
+    volumes:
+      - ./smr_config.py:/ws/packages/api-server/smr_config.py:ro
 
   web-dashboard:
-    image: "ghcr.io/open-rmf/rmf_deployment_template/rmf-deployment/dashboard-no-auth:latest"
+    image: "levonti/smr-web-dashboard:0.0.3"
     environment:
-      RMF_SERVER_URL: "http://localhost:8000"
-      TRAJECTORY_SERVER_URL: "ws://localhost:8006"
+      RMF_SERVER_URL: "http://10.100.0.16:8000"
+      TRAJECTORY_SERVER_URL: "ws://10.100.0.16:8006"
+    extra_hosts:
+      - "rmf.test:127.0.0.1"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "3000:80"
