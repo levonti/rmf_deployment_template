@@ -1,6 +1,8 @@
 ARG RMF_IMAGE
 FROM $RMF_IMAGE as build
 
+ARG ROS_DISTRO="jazzy"
+
 RUN mkdir -p /ws/src
 WORKDIR /ws
 
@@ -24,7 +26,7 @@ EOF
 RUN apt-get update \
     && apt-get upgrade -y \
     && rosdep update \
-    && rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y
+    && bash -c '. /opt/rmf/setup.bash && rosdep install --from-paths /ws/src -yi -t exec --rosdistro=$ROS_DISTRO'
 
 RUN --mount=type=bind,target=/ws/src/mysite <<EOF bash
   . /opt/rmf/setup.bash
