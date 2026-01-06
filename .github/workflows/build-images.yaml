@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
+  packages: write
   id-token: write
 env:
   IMAGE_NS: ghcr.io/levonti/rmf_deployment_template/rmf-deployment
